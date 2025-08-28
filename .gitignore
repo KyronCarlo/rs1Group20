@@ -1,15 +1,7 @@
-# Ignore everything by default
+# Ignore everything
 *
 
-# But keep src/ and this file
+# Allow these back in
 !.gitignore
 !/src/
-
-# Optional: Python build/venv junk
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.so
-*.egg-info/
-.venv/
+!/src/**
