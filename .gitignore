@@ -1,0 +1,15 @@
+# Ignore everything by default
+*
+
+# But keep src/ and this file
+!.gitignore
+!/src/
+
+# Optional: Python build/venv junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
