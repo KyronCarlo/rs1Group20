@@ -2,16 +2,12 @@
 
 Controller::Controller() : Node("controller") {
    
-    odometrySub_ = this->create_subscription<nav_msgs::msg::Odometry>("orange/odom", 1000, std::bind(&Controller::odoCallback, this, std::placeholders::_1));
-    goalsSub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("orange/goals", 1000, std::bind(&Controller::setGoal, this, std::placeholders::_1));
+    odometrySub_ = this->create_subscription<nav_msgs::msg::Odometry>("drone/odom", 1000, std::bind(&Controller::odoCallback, this, std::placeholders::_1));
+    goalsSub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("drone/goals", 1000, std::bind(&Controller::setGoal, this, std::placeholders::_1));
 
-    missionService_ = this->create_service<std_srvs::srv::SetBool>("/orange/mission",std::bind(&Controller::runMission, this, std::placeholders::_1, std::placeholders::_2));
+    missionService_ = this->create_service<std_srvs::srv::SetBool>("/drone/mission",std::bind(&Controller::runMission, this, std::placeholders::_1, std::placeholders::_2));
 
     goalPub_ = this->create_publisher<geometry_msgs::msg::Point>("/goal_point", 1);
-    
-    waypointsPub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("orange/waypoints", 1);
-
-    boolSub_ = this->create_subscription<std_msgs::msg::Bool>("/goalInCentre", 1, std::bind(&Controller::boolCallback, this, std::placeholders::_1));
 
     // set flag to false 
     SetInitialDistance = false;

@@ -2,6 +2,10 @@
 #define QUADCOPTER_H
 
 #include "controller.h"
+#include <tf2/utils.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+#include "std_msgs/msg/empty.hpp"
 
 /*!
  *  \brief     Quadcopter Class
@@ -49,10 +53,10 @@ public:
   @return bool indicating the platform can reach the destination from origin supplied
   */
   bool checkOriginToDestination(geometry_msgs::msg::Pose origin,
-                                pfms::geometry_msgs::Point goal,
-                                double& distance,
-                                double& time,
-                                pfms::nav_msgs::Odometry& estimatedGoalPose) override;
+                                        geometry_msgs::msg::Point goal,
+                                        double& distance,
+                                        double& time,
+                                        geometry_msgs::msg::Pose& estimatedGoalPose) override;
  
   /*! 
    * function for normalising angles that is used in checkOriginToDestination function
@@ -61,10 +65,26 @@ public:
 
 
   private:
-    pfms::commands::Quadcopter quadcopter_; /*!< creating an object of the quadcopter commands*/
+ 
+    void command(double move_forward_back, double move_left_right, double turn_left_right, double move_up_down);
+  
     double angleDifference; /*!< variable storee the angle difference between the current orientation and goal orientation*/
     controlQuad::State state; /*!< creating object of the control quadcopter enum*/
     bool inZposition; /*!< a bool check if the drone is in the z position*/
+
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr move_f_bPub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr move_l_rPub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr move_u_dPub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr turn_l_rPub_;
+
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr command_Pub;
+    rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr takeOff_Pub; 
+
+    std_msgs::msg::Float64 move_f_b; 
+    std_msgs::msg::Float64 turn_l_r;
+    std_msgs::msg::Float64 move_u_d; 
+    std_msgs::msg::Float64 move_l_r; 
+
 };
 
 #endif // QUADCOPTER_H

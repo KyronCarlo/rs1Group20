@@ -173,6 +173,7 @@ controller_node: /opt/ros/humble/lib/libaction_msgs__rosidl_generator_c.so
 controller_node: /opt/ros/humble/lib/libunique_identifier_msgs__rosidl_generator_py.so
 controller_node: /opt/ros/humble/lib/libunique_identifier_msgs__rosidl_typesupport_c.so
 controller_node: /opt/ros/humble/lib/libunique_identifier_msgs__rosidl_generator_c.so
+controller_node: /usr/lib/x86_64-linux-gnu/liborocos-kdl.so
 controller_node: /opt/ros/humble/lib/libgeometry_msgs__rosidl_typesupport_fastrtps_c.so
 controller_node: /opt/ros/humble/lib/libstd_msgs__rosidl_typesupport_fastrtps_c.so
 controller_node: /opt/ros/humble/lib/libbuiltin_interfaces__rosidl_typesupport_fastrtps_c.so

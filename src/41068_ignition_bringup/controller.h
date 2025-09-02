@@ -12,6 +12,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include <deque>
 
 /*!
@@ -121,6 +122,7 @@ class Controller : public ControllerInterface, public rclcpp::Node
   */
  geometry_msgs::msg::Quaternion yawToQuaternion(double yaw);
 
+
  //! Information about the goal for the platform
  struct GoalStats {
     //! location of goal
@@ -166,7 +168,6 @@ protected:
  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr boolSub_; //!< Service for mission
 
  rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr goalPub_;//!< Publisher for the goal
- rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr waypointsPub_;//!< Publisher for the waypoints
 
  double percentCompleted;//!< Stores the percentage value of completed tasks
  geometry_msgs::msg::Point previousPos;//!< Odom value used for calculating distance travelled

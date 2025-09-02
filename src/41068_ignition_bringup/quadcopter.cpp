@@ -2,11 +2,14 @@
 
 Quadcopter::Quadcopter(){
     // set default values
-    quadcopter_.move_f_b = 0.0;
-    quadcopter_.move_l_r = 0.0;
-    quadcopter_.move_u_d = 0.0;
-    quadcopter_.seq = 0.0;
-    quadcopter_.turn_l_r = 0.0;
+
+    move_f_b.data = 0.0;
+    turn_l_r.data = 0.0;
+    move_u_d.data = 0.0;
+    move_l_r.data = 0.0;
+
+    command_Pub  = this->create_publisher<geometry_msgs::msg::Twist>("drone/command",3);  
+    takeOff_Pub = this->create_publisher<std_msgs::msg::Empty>("drone/takeoff",3); 
 
     // set flag to false 
     inZposition = false;
@@ -14,109 +17,88 @@ Quadcopter::Quadcopter(){
 
     state = controlQuad::State::IDLE;
 
+    threads_.push_back(std::thread(&Quadcopter::run,this));
 }
 
 void Quadcopter::run(void){
   
-  std::unique_lock<std::mutex> lck(mtxStart_);
-    
-  cvStart_.wait(lck, [&](){return running_ == true;});
+ std::unique_lock<std::mutex> lck(mtxStart_);
 
-    while (running_){
-      
-      // updates that it is still in motion
-      goalReached = false;
+    // while it has not reached the goal yet
+            while (!goalReached && isDriving_ && goalSet_){
+                
+                //updates the values needed to reach goal and check it is reachable
+                goalReachable = checkOriginToDestination(odom_, goal_.location, goal_.distance, goal_.time, estimatedGoalPose_);
+                
+                // if it cannot reach the goal, returns false and exits function
+                if (!goalReachable){
+                    state = controlQuad::State::STOPPING;
+                }
 
-      // send visualised goal to display
-      seq = 0;
+                 if (!firstOdomReceived) {
+                    previousPos = odom_.position;
+                    firstOdomReceived = true;
+                }
+                else{
+                    distanceTravelled();
+                    previousPos = odom_.position;
+                }
+                // update the variable by calling the functions
+                timeTravelled();
 
-      for (int i = 0; i < goals_.size(); i++) {
-          goalReached = false; 
-          
-          pfms::geometry_msgs::Goal goal{seq++,goals_.at(i)};//if we want to send another goal to be visualised we need to increase seq number
-          pfmsConnectorPtr_->send(goals_.at(i));
-
-          // while it has not reached the goal yet
-          while (!goalReached){
-              // update odom_ with current position of car
-              goalReachable = pfmsConnectorPtr_->read(odom_);
-              
-              //updates the values needed to reach goal and check it is reachable
-              goalReachable = checkOriginToDestination(odom_, goals_.at(i), distance_, time_, estimatedGoalPose_);
-
-              // if it cannot reach the goal, returns false and exits function
-              if (!goalReachable){
-                  state = controlQuad::State::STOPPING;
-              }
-
-              // Sets the total distance to the goal
-              // used for calculating the distance it has travelled as it moves
-              if (!SetInitialDistance){
-                  InitialDistance = distance_;
-                  SetInitialDistance = true;
-              }
-
-              if (inZposition && odom_.position.z - goals_.at(i).z < -0.2){
+                if (inZposition && odom_.position.z - goal_.location.z < -0.2){
                 inZposition = false;
                 state = controlQuad::State::MOVEUP; 
               }
 
-              if (inZposition && odom_.position.z - goals_.at(i).z > 0.2){
+              if (inZposition && odom_.position.z - goal_.location.z > 0.2){
                 inZposition = false;
                 state = controlQuad::State::MOVEDOWN; 
               }
-              
-              // update the time variable by calling the function
-              timeTravelled();
 
-          switch(state)
+            switch(state)
               {   // initial state of quad when it is stable
                   case controlQuad::State::IDLE   : 
-                      if (distance_ > tolerance_ && !inZposition){ 
+                      if (goal_.distance > tolerance_ && !inZposition){ 
                           // accelerate when the distance to the goal is set and is greater than the tolerance
                           // start the timer when the quad starts moving
                           startTime = std::chrono::steady_clock::now();
                           state = controlQuad::State::MOVEUP;
                       }  
-                      else if (distance_ > tolerance_ && inZposition){
+                      else if (goal_.distance > tolerance_ && inZposition){
                         state = controlQuad::State::TURN;
                       }  
                       else{
-                        status_ = pfms::PlatformStatus::IDLE;
                         if (odom_.position.z < 1){
-                          quadcopter_.move_f_b = 0.0;
-                          quadcopter_.move_l_r = 0.0;
-                          quadcopter_.move_u_d = 0.0;
-                          quadcopter_.turn_l_r = 0.0;
+                          command(0.0, 0.0, 0.0, 0.0);
                         }
                       }
                       break;
                   // state when the quad is moving up
                   case controlQuad::State::MOVEUP : 
-                      if (fabs(odom_.position.z - goals_.at(i).z) < 1e-1){ 
+                      if (fabs(odom_.position.z - goal_.location.z) < 1e-1){ 
                           // move to Turn state when close to the z goal
-                          quadcopter_.move_u_d = 0.0;
+                          command(move_f_b.data, move_l_r.data, turn_l_r.data, 0.0);
                           inZposition = true;
                           state = controlQuad::State::TURN;
                       }
                       // if else for if it has gone way over z goal
-                      else if (odom_.position.z - goals_.at(i).z > 0.1){
+                      else if (odom_.position.z - goal_.location.z > 0.1){
                         state = controlQuad::State::MOVEDOWN;
                       }
                       else{
                           // do MOVING UP
                           if (odom_.position.z < 0.1){
-                            status_ = pfms::PlatformStatus::TAKEOFF;
-                            pfmsConnectorPtr_->send(status_);
+                            std_msgs::msg::Empty message = std_msgs::msg::Empty();
+                            takeOff_Pub->publish(message);
                           }
                           else{
-                          quadcopter_.move_u_d = 0.5;
-                          quadcopter_.move_f_b = 0.6;
+                          command(0.6, move_l_r.data, turn_l_r.data, 0.5);
                           if (angleDifference > 0){
-                            quadcopter_.turn_l_r = 0.5;
+                            command(move_f_b.data, move_l_r.data, 0.5, move_u_d.data);
                           }
                           else{
-                            quadcopter_.turn_l_r = -0.5;
+                            command(move_f_b.data, move_l_r.data, -0.5, move_u_d.data);
                           }
 
                           }
@@ -124,63 +106,59 @@ void Quadcopter::run(void){
                       break;
                   // state when the car needs to be slowed down as it is close to goal
                   case controlQuad::State::TURN : 
-                      if (fabs(angleDifference) < 12e-1 && distance_ > 6){ //DO THIS
-                        //quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_f_b = 1.0;
+                      if (fabs(angleDifference) < 12e-1 && goal_.distance > 6){ //DO THIS
+                        command(1.0, move_l_r.data, turn_l_r.data, move_u_d.data);
                         state = controlQuad::State::FORWARD;
                       }
-                      else if (fabs(angleDifference) < 4e-1 && distance_ < 6){
-                        quadcopter_.move_f_b = 0.3;
+                      else if (fabs(angleDifference) < 4e-1 && goal_.distance < 6){
+                        command(0.3, move_l_r.data, turn_l_r.data, move_u_d.data);
                         state = controlQuad::State::FORWARD;
                       }
                       else{ 
                         // DO TURNING
-                        status_ = pfms::PlatformStatus::RUNNING;
-                        quadcopter_.move_f_b = 0.0;
+                        command(0.0, move_l_r.data, turn_l_r.data, move_u_d.data);
                         if (angleDifference > 0){
-                          quadcopter_.turn_l_r = 1.0;
+                          command(move_f_b.data, move_l_r.data, 1.0, move_u_d.data);
                         }
                         else{
-                          quadcopter_.turn_l_r = -1.0;
+                          command(move_f_b.data, move_l_r.data, -1.0, move_u_d.data);
                         }
                       }
                       break;
                   case controlQuad::State::FORWARD : 
-                      if (distance_ < (tolerance_+ 0.5) && quadcopter_.move_f_b == 1.4){ 
+                      if (goal_.distance < (tolerance_+ 0.5) && move_f_b.data== 1.4){ 
                           state = controlQuad::State::STOPPING;
                       }
-                      if (fabs(angleDifference) > 1.5e-1 && distance_ > (tolerance_ + 1)){
+                      if (fabs(angleDifference) > 1.5e-1 && goal_.distance > (tolerance_ + 1)){
                         state = controlQuad::State::ADJUST;
                        }
-                      else if (distance_ < 1 && quadcopter_.move_f_b < 0.1){
-                        quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_f_b = 0.3;  
+                      else if (goal_.distance < 1 && move_f_b.data< 0.1){
+                        command(0.3, move_l_r.data, 0.0, move_u_d.data);
                       }
-                      else if (distance_ < tolerance_ && quadcopter_.move_f_b < 1.4){
+                      else if (goal_.distance < tolerance_ && move_f_b.data < 1.4){
                         state = controlQuad::State::STOPPING;
                       }
                       else{ 
                         // DO MOVING FORWARD
-                        quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_f_b = 1.4;
+                        command(1.4, move_l_r.data, 0.0, move_u_d.data);
                         
                       }
                       break;
                   case controlQuad::State::ADJUST : 
-                      if (distance_ < (tolerance_+ 0.2) && quadcopter_.move_f_b == 1.0){ 
+                      if (goal_.distance < (tolerance_+ 0.2) && move_f_b.data == 1.0){ 
                           state = controlQuad::State::STOPPING;
                       }
-                      if (fabs(angleDifference) < 1e-1 || distance_ < (tolerance_ + 1)){ //DO THIS
-                        quadcopter_.turn_l_r = 0.0;
+                      if (fabs(angleDifference) < 1e-1 || goal_.distance < (tolerance_ + 1)){ //DO THIS
+                        command(move_f_b.data, move_l_r.data, 0.0, move_u_d.data);
                         state = controlQuad::State::FORWARD;
                       }
 
                       else{ 
                         if (angleDifference > 0){
-                          quadcopter_.turn_l_r = 0.5;
+                          command(move_f_b.data, move_l_r.data, 0.5, move_u_d.data);
                         }
                         else{
-                          quadcopter_.turn_l_r = -0.5;
+                          command(move_f_b.data, move_l_r.data, -0.5, move_u_d.data);
                         }
                         
                       }
@@ -189,89 +167,74 @@ void Quadcopter::run(void){
                   // state for stopping the car
                   case controlQuad::State::STOPPING :
                       // if the car has stopped within the tolerance, update values and return true
-                      if (distance_ < tolerance_ && fabs(odom_.linear.x) < 1e-1 && fabs(odom_.linear.y) < 1e-1){ 
+                      if (goal_.distance < tolerance_ && fabs(speed_.linear.x) < 1e-1 && fabs(speed_.linear.y) < 1e-1){ 
                           // stop the timer when the car is stopped
-                          quadcopter_.move_f_b = 0.0;
-                          quadcopter_.turn_l_r = 0.0;
-                          quadcopter_.move_u_d = 0.0;
+                          command(0.0, 0.0, 0.0, 0.0);
                           endTime = std::chrono::steady_clock::now();
                           // indicate the goal was reached within the tolerance
                           goalReached = true;
                           SetInitialDistance = false;
                           // ensure timer is stopped by calling function after endTime is set
                           state = controlQuad::State::IDLE;
-                          status_ = pfms::PlatformStatus::IDLE;
                           break;
                       }
-                      else if(distance_ > tolerance_ && fabs(odom_.linear.x) < 1e-1 && fabs(odom_.linear.y) < 1e-1){
+                      else if(goal_.distance > tolerance_ && fabs(speed_.linear.x) < 1e-1 && fabs(speed_.linear.y) < 1e-1){
                       // if vehicle stopped outside of tolerance of the goal, update values and return false
                           // stop the timer when the car is stopped
-                          quadcopter_.move_f_b = 0.0;
-                          quadcopter_.turn_l_r = 0.0;
-                          quadcopter_.move_u_d = 0.0;
+                          command(0.0, 0.0, 0.0, 0.0);
                           endTime = std::chrono::steady_clock::now();
                           // indicate the goal was not reached within the tolerance
                           goalReached = false;
                           SetInitialDistance = false;
                           // ensure timer is stopped by calling function after endTime is set
                           state = controlQuad::State::IDLE;
-                          status_ = pfms::PlatformStatus::IDLE;
                           break;
                       }
                       else{ 
                         
-                        quadcopter_.move_f_b = 0.0;
-                        quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_u_d = 0.0;
+                        command(0.0, 0.0, 0.0, 0.0);
+                      
                         break;
 
                       }
                   case controlQuad::State::MOVEDOWN : 
-                      if (fabs(odom_.position.z - goals_.at(i).z) < 1e-1){ //DO THIS
-                        quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_u_d = 0.0;
+                      if (fabs(odom_.position.z - goal_.location.z) < 1e-1){ //DO THIS
+                        command(move_f_b.data, move_l_r.data, 0.0, 0.0);
                         state = controlQuad::State::TURN;
                       }
                       else{ 
-                        quadcopter_.turn_l_r = 0.0;
-                        quadcopter_.move_u_d = -0.2;
+                        command(move_f_b.data, move_l_r.data, 0.0, -0.2);
                       }
                       break;
                   default:
                       break;
               }
 
-
-            // This sends the command to the platform
-            pfmsConnectorPtr_->send(quadcopter_);
-            quadcopter_.seq++;
-
-            pfmsConnectorPtr_->read(updatedOdom_);
-
             distanceTravelled();
 
             // This slows down the loop to 20Hz
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-          }
-        }
-          quadcopter_.move_f_b = 0.0;
-          quadcopter_.move_l_r = 0.0;
-          quadcopter_.move_u_d = 0.0;
-          quadcopter_.turn_l_r = 0.0;
-          TotalReachedAllGoals = true;
-          running_ = false;
-          break;
-    }
-    ready_ = true;
+
+            updateCurrentGoal();
+                    // distanceTravelled();
+                    // previousPos = goal_.location;
+                    // This slows down the loop to 10Hz
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    
+                    if (goals_.empty()){
+                        break;
+                    }
+                }
+
+            lck.unlock();
     
-    lck.unlock();
-}
-  
-bool Quadcopter::checkOriginToDestination(geometry_msgs::msg::Pose origin
-                                        pfms::geometry_msgs::Point goal,
+        }
+
+bool Quadcopter::checkOriginToDestination(geometry_msgs::msg::Pose origin,
+                                        geometry_msgs::msg::Point goal,
                                         double& distance,
                                         double& time,
-                                        pfms::nav_msgs::Odometry& estimatedGoalPose){
+                                        geometry_msgs::msg::Pose& estimatedGoalPose){
     
   // difference between goal and origin
   double dx = goal.x - origin.position.x;
@@ -343,3 +306,19 @@ double Quadcopter::normaliseAngle(double theta) {
 
     return theta;
   }
+
+  void Quadcopter::command(double move_forward_back, double move_left_right, double turn_left_right, double move_up_down) {
+
+    move_f_b.data = move_forward_back;
+    turn_l_r.data = turn_left_right;
+    move_u_d.data = move_up_down;
+    move_l_r.data = move_left_right;
+
+    geometry_msgs::msg::Twist msg = geometry_msgs::msg::Twist();
+    
+    msg.linear.x= move_f_b.data;
+    msg.linear.y= move_l_r.data;
+    msg.linear.z= move_u_d.data;
+    msg.angular.z = turn_l_r.data;
+    command_Pub->publish(msg);
+}
