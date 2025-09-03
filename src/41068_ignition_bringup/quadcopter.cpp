@@ -8,12 +8,13 @@ Quadcopter::Quadcopter(){
     move_u_d.data = 0.0;
     move_l_r.data = 0.0;
 
-    command_Pub  = this->create_publisher<geometry_msgs::msg::Twist>("drone/command",3);  
+    command_Pub  = this->create_publisher<geometry_msgs::msg::Twist>("drone/cmd_vel",3);  
     takeOff_Pub = this->create_publisher<std_msgs::msg::Empty>("drone/takeoff",3); 
 
     // set flag to false 
     inZposition = false;
-
+    goalReached = true;
+    SetInitialDistance = false;
 
     state = controlQuad::State::IDLE;
 
@@ -23,6 +24,8 @@ Quadcopter::Quadcopter(){
 void Quadcopter::run(void){
   
  std::unique_lock<std::mutex> lck(mtxStart_);
+
+ updateCurrentGoal();
 
     // while it has not reached the goal yet
             while (!goalReached && isDriving_ && goalSet_){
@@ -167,36 +170,23 @@ void Quadcopter::run(void){
                   // state for stopping the car
                   case controlQuad::State::STOPPING :
                       // if the car has stopped within the tolerance, update values and return true
-                      if (goal_.distance < tolerance_ && fabs(speed_.linear.x) < 1e-1 && fabs(speed_.linear.y) < 1e-1){ 
+                      if (goal_.distance < tolerance_){ 
                           // stop the timer when the car is stopped
                           command(0.0, 0.0, 0.0, 0.0);
                           endTime = std::chrono::steady_clock::now();
                           // indicate the goal was reached within the tolerance
                           goalReached = true;
                           SetInitialDistance = false;
-                          // ensure timer is stopped by calling function after endTime is set
+                          timeTravelled();
                           state = controlQuad::State::IDLE;
-                          break;
-                      }
-                      else if(goal_.distance > tolerance_ && fabs(speed_.linear.x) < 1e-1 && fabs(speed_.linear.y) < 1e-1){
-                      // if vehicle stopped outside of tolerance of the goal, update values and return false
-                          // stop the timer when the car is stopped
-                          command(0.0, 0.0, 0.0, 0.0);
-                          endTime = std::chrono::steady_clock::now();
-                          // indicate the goal was not reached within the tolerance
-                          goalReached = false;
-                          SetInitialDistance = false;
-                          // ensure timer is stopped by calling function after endTime is set
-                          state = controlQuad::State::IDLE;
-                          break;
+                          goals_.pop_front();
+                          percentComplete();
                       }
                       else{ 
                         
                         command(0.0, 0.0, 0.0, 0.0);
-                      
-                        break;
-
                       }
+                      break;
                   case controlQuad::State::MOVEDOWN : 
                       if (fabs(odom_.position.z - goal_.location.z) < 1e-1){ //DO THIS
                         command(move_f_b.data, move_l_r.data, 0.0, 0.0);
@@ -210,25 +200,21 @@ void Quadcopter::run(void){
                       break;
               }
 
-            distanceTravelled();
-
-            // This slows down the loop to 20Hz
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
             updateCurrentGoal();
-                    // distanceTravelled();
-                    // previousPos = goal_.location;
-                    // This slows down the loop to 10Hz
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            // distanceTravelled();
+            // previousPos = goal_.location;
+            // This slows down the loop to 10Hz
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     
-                    if (goals_.empty()){
-                        break;
-                    }
-                }
+            if (goals_.empty()){
+                break;
+            }
+          }
 
-            lck.unlock();
+    lck.unlock();
     
-        }
+}
 
 bool Quadcopter::checkOriginToDestination(geometry_msgs::msg::Pose origin,
                                         geometry_msgs::msg::Point goal,
@@ -258,7 +244,7 @@ bool Quadcopter::checkOriginToDestination(geometry_msgs::msg::Pose origin,
   double timeToMove = horizontalDist / speed; 
 
   // get the initial angle that car is at
-  double originAngle = origin.yaw;
+  double originAngle = tf2::getYaw(origin.orientation);
   
   // calculates the angle required to face the goal, in radians
   double angle = atan2(dy, dx);
@@ -278,7 +264,8 @@ bool Quadcopter::checkOriginToDestination(geometry_msgs::msg::Pose origin,
 
   // Update the position and orientation of the estimated goal pose
   estimatedGoalPose.position = goal;
-  estimatedGoalPose.yaw = angle;
+  estimatedGoalPose.orientation = yawToQuaternion(angle);
+
 
   // return true if the goal is reacheable
   // returns false otherwise

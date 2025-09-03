@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/controller_node.dir/quadcopter.cpp.o"
-  "CMakeFiles/controller_node.dir/quadcopter.cpp.o.d"
+  "CMakeFiles/controller_node.dir/quadcopter_main.cpp.o"
+  "CMakeFiles/controller_node.dir/quadcopter_main.cpp.o.d"
   "controller_node"
   "controller_node.pdb"
 )

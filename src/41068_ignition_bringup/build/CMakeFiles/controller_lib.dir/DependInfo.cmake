@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/controller.cpp" "CMakeFiles/controller_lib.dir/controller.cpp.o" "gcc" "CMakeFiles/controller_lib.dir/controller.cpp.o.d"
+  "/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp" "CMakeFiles/controller_lib.dir/quadcopter.cpp.o" "gcc" "CMakeFiles/controller_lib.dir/quadcopter.cpp.o.d"
   )
 
 # Targets to which this target links.

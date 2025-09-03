@@ -211,17 +211,17 @@ controller_lib/fast:
 .PHONY : controller_lib/fast
 
 #=============================================================================
-# Target rules for targets named controller_node
+# Target rules for targets named quadcopter
 
 # Build rule for target.
-controller_node: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 controller_node
-.PHONY : controller_node
+quadcopter: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 quadcopter
+.PHONY : quadcopter
 
 # fast build rule for target.
-controller_node/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_node.dir/build.make CMakeFiles/controller_node.dir/build
-.PHONY : controller_node/fast
+quadcopter/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/build
+.PHONY : quadcopter/fast
 
 controller.o: controller.cpp.o
 .PHONY : controller.o
@@ -252,7 +252,7 @@ quadcopter.o: quadcopter.cpp.o
 
 # target to build an object file
 quadcopter.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_node.dir/build.make CMakeFiles/controller_node.dir/quadcopter.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_lib.dir/build.make CMakeFiles/controller_lib.dir/quadcopter.cpp.o
 .PHONY : quadcopter.cpp.o
 
 quadcopter.i: quadcopter.cpp.i
@@ -260,7 +260,7 @@ quadcopter.i: quadcopter.cpp.i
 
 # target to preprocess a source file
 quadcopter.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_node.dir/build.make CMakeFiles/controller_node.dir/quadcopter.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_lib.dir/build.make CMakeFiles/controller_lib.dir/quadcopter.cpp.i
 .PHONY : quadcopter.cpp.i
 
 quadcopter.s: quadcopter.cpp.s
@@ -268,8 +268,32 @@ quadcopter.s: quadcopter.cpp.s
 
 # target to generate assembly for a file
 quadcopter.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_node.dir/build.make CMakeFiles/controller_node.dir/quadcopter.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_lib.dir/build.make CMakeFiles/controller_lib.dir/quadcopter.cpp.s
 .PHONY : quadcopter.cpp.s
+
+quadcopter_main.o: quadcopter_main.cpp.o
+.PHONY : quadcopter_main.o
+
+# target to build an object file
+quadcopter_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/quadcopter_main.cpp.o
+.PHONY : quadcopter_main.cpp.o
+
+quadcopter_main.i: quadcopter_main.cpp.i
+.PHONY : quadcopter_main.i
+
+# target to preprocess a source file
+quadcopter_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/quadcopter_main.cpp.i
+.PHONY : quadcopter_main.cpp.i
+
+quadcopter_main.s: quadcopter_main.cpp.s
+.PHONY : quadcopter_main.s
+
+# target to generate assembly for a file
+quadcopter_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/quadcopter_main.cpp.s
+.PHONY : quadcopter_main.cpp.s
 
 # Help Target
 help:
@@ -287,13 +311,16 @@ help:
 	@echo "... search_and_rescue_uninstall"
 	@echo "... uninstall"
 	@echo "... controller_lib"
-	@echo "... controller_node"
+	@echo "... quadcopter"
 	@echo "... controller.o"
 	@echo "... controller.i"
 	@echo "... controller.s"
 	@echo "... quadcopter.o"
 	@echo "... quadcopter.i"
 	@echo "... quadcopter.s"
+	@echo "... quadcopter_main.o"
+	@echo "... quadcopter_main.i"
+	@echo "... quadcopter_main.s"
 .PHONY : help
 
 

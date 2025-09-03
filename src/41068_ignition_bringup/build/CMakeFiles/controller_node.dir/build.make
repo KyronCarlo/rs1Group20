@@ -69,28 +69,28 @@ include CMakeFiles/controller_node.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/controller_node.dir/flags.make
 
-CMakeFiles/controller_node.dir/quadcopter.cpp.o: CMakeFiles/controller_node.dir/flags.make
-CMakeFiles/controller_node.dir/quadcopter.cpp.o: ../quadcopter.cpp
-CMakeFiles/controller_node.dir/quadcopter.cpp.o: CMakeFiles/controller_node.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/controller_node.dir/quadcopter.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/controller_node.dir/quadcopter.cpp.o -MF CMakeFiles/controller_node.dir/quadcopter.cpp.o.d -o CMakeFiles/controller_node.dir/quadcopter.cpp.o -c /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp
+CMakeFiles/controller_node.dir/quadcopter_main.cpp.o: CMakeFiles/controller_node.dir/flags.make
+CMakeFiles/controller_node.dir/quadcopter_main.cpp.o: ../quadcopter_main.cpp
+CMakeFiles/controller_node.dir/quadcopter_main.cpp.o: CMakeFiles/controller_node.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/controller_node.dir/quadcopter_main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/controller_node.dir/quadcopter_main.cpp.o -MF CMakeFiles/controller_node.dir/quadcopter_main.cpp.o.d -o CMakeFiles/controller_node.dir/quadcopter_main.cpp.o -c /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter_main.cpp
 
-CMakeFiles/controller_node.dir/quadcopter.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/controller_node.dir/quadcopter.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp > CMakeFiles/controller_node.dir/quadcopter.cpp.i
+CMakeFiles/controller_node.dir/quadcopter_main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/controller_node.dir/quadcopter_main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter_main.cpp > CMakeFiles/controller_node.dir/quadcopter_main.cpp.i
 
-CMakeFiles/controller_node.dir/quadcopter.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/controller_node.dir/quadcopter.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp -o CMakeFiles/controller_node.dir/quadcopter.cpp.s
+CMakeFiles/controller_node.dir/quadcopter_main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/controller_node.dir/quadcopter_main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter_main.cpp -o CMakeFiles/controller_node.dir/quadcopter_main.cpp.s
 
 # Object files for target controller_node
 controller_node_OBJECTS = \
-"CMakeFiles/controller_node.dir/quadcopter.cpp.o"
+"CMakeFiles/controller_node.dir/quadcopter_main.cpp.o"
 
 # External object files for target controller_node
 controller_node_EXTERNAL_OBJECTS =
 
-controller_node: CMakeFiles/controller_node.dir/quadcopter.cpp.o
+controller_node: CMakeFiles/controller_node.dir/quadcopter_main.cpp.o
 controller_node: CMakeFiles/controller_node.dir/build.make
 controller_node: libcontroller_lib.a
 controller_node: /opt/ros/humble/lib/libnav_msgs__rosidl_typesupport_fastrtps_c.so

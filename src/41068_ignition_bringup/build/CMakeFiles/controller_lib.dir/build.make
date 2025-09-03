@@ -83,17 +83,33 @@ CMakeFiles/controller_lib.dir/controller.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/controller_lib.dir/controller.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/controller.cpp -o CMakeFiles/controller_lib.dir/controller.cpp.s
 
+CMakeFiles/controller_lib.dir/quadcopter.cpp.o: CMakeFiles/controller_lib.dir/flags.make
+CMakeFiles/controller_lib.dir/quadcopter.cpp.o: ../quadcopter.cpp
+CMakeFiles/controller_lib.dir/quadcopter.cpp.o: CMakeFiles/controller_lib.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/controller_lib.dir/quadcopter.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/controller_lib.dir/quadcopter.cpp.o -MF CMakeFiles/controller_lib.dir/quadcopter.cpp.o.d -o CMakeFiles/controller_lib.dir/quadcopter.cpp.o -c /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp
+
+CMakeFiles/controller_lib.dir/quadcopter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/controller_lib.dir/quadcopter.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp > CMakeFiles/controller_lib.dir/quadcopter.cpp.i
+
+CMakeFiles/controller_lib.dir/quadcopter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/controller_lib.dir/quadcopter.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/quadcopter.cpp -o CMakeFiles/controller_lib.dir/quadcopter.cpp.s
+
 # Object files for target controller_lib
 controller_lib_OBJECTS = \
-"CMakeFiles/controller_lib.dir/controller.cpp.o"
+"CMakeFiles/controller_lib.dir/controller.cpp.o" \
+"CMakeFiles/controller_lib.dir/quadcopter.cpp.o"
 
 # External object files for target controller_lib
 controller_lib_EXTERNAL_OBJECTS =
 
 libcontroller_lib.a: CMakeFiles/controller_lib.dir/controller.cpp.o
+libcontroller_lib.a: CMakeFiles/controller_lib.dir/quadcopter.cpp.o
 libcontroller_lib.a: CMakeFiles/controller_lib.dir/build.make
 libcontroller_lib.a: CMakeFiles/controller_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libcontroller_lib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libcontroller_lib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/controller_lib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/controller_lib.dir/link.txt --verbose=$(VERBOSE)
 

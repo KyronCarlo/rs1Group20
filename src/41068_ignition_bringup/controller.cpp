@@ -2,8 +2,8 @@
 
 Controller::Controller() : Node("controller") {
    
-    odometrySub_ = this->create_subscription<nav_msgs::msg::Odometry>("drone/odom", 1000, std::bind(&Controller::odoCallback, this, std::placeholders::_1));
-    goalsSub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("drone/goals", 1000, std::bind(&Controller::setGoal, this, std::placeholders::_1));
+    odometrySub_ = this->create_subscription<nav_msgs::msg::Odometry>("/drone/gt_odom", 1000, std::bind(&Controller::odoCallback, this, std::placeholders::_1));
+    goalsSub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/mission/goals", 1000, std::bind(&Controller::setGoal, this, std::placeholders::_1));
 
     missionService_ = this->create_service<std_srvs::srv::SetBool>("/drone/mission",std::bind(&Controller::runMission, this, std::placeholders::_1, std::placeholders::_2));
 
