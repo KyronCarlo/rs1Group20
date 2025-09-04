@@ -5,3 +5,8 @@
 !.gitignore
 !/src/
 !/src/**
+
+# But ignore ROS2 build artifacts
+/src/**/build/
+/src/**/install/
+/src/**/log/
