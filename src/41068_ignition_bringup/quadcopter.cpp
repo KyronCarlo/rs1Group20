@@ -211,6 +211,9 @@ void Quadcopter::run(void){
                 break;
             }
           }
+          if (!goalSet_){ // makes the drone stop when the service is called with data 'false'
+            command(0.0, 0.0, 0.0, 0.0);
+          }
 
     lck.unlock();
     
