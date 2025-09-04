@@ -2,6 +2,7 @@
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/search_and_rescue_uninstall.dir
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/controller_lib.dir
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/quadcopter.dir
+/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/navigation.dir
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/test.dir
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/edit_cache.dir
 /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles/rebuild_cache.dir

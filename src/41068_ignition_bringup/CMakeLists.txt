@@ -27,9 +27,14 @@ add_executable(quadcopter quadcopter_main.cpp)
 target_link_libraries(quadcopter controller_lib)
 ament_target_dependencies(quadcopter rclcpp std_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs std_srvs) 
 
+add_executable(navigation mission_main.cpp mission.cpp)
+target_link_libraries(navigation)
+ament_target_dependencies(navigation rclcpp geometry_msgs std_msgs)
+
 install(TARGETS
   controller_lib
   quadcopter
+  navigation
   DESTINATION lib/${PROJECT_NAME}
 )
 

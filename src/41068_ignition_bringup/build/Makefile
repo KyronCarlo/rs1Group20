@@ -223,6 +223,19 @@ quadcopter/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/build
 .PHONY : quadcopter/fast
 
+#=============================================================================
+# Target rules for targets named navigation
+
+# Build rule for target.
+navigation: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 navigation
+.PHONY : navigation
+
+# fast build rule for target.
+navigation/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/build
+.PHONY : navigation/fast
+
 controller.o: controller.cpp.o
 .PHONY : controller.o
 
@@ -246,6 +259,54 @@ controller.s: controller.cpp.s
 controller.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/controller_lib.dir/build.make CMakeFiles/controller_lib.dir/controller.cpp.s
 .PHONY : controller.cpp.s
+
+mission.o: mission.cpp.o
+.PHONY : mission.o
+
+# target to build an object file
+mission.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission.cpp.o
+.PHONY : mission.cpp.o
+
+mission.i: mission.cpp.i
+.PHONY : mission.i
+
+# target to preprocess a source file
+mission.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission.cpp.i
+.PHONY : mission.cpp.i
+
+mission.s: mission.cpp.s
+.PHONY : mission.s
+
+# target to generate assembly for a file
+mission.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission.cpp.s
+.PHONY : mission.cpp.s
+
+mission_main.o: mission_main.cpp.o
+.PHONY : mission_main.o
+
+# target to build an object file
+mission_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission_main.cpp.o
+.PHONY : mission_main.cpp.o
+
+mission_main.i: mission_main.cpp.i
+.PHONY : mission_main.i
+
+# target to preprocess a source file
+mission_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission_main.cpp.i
+.PHONY : mission_main.cpp.i
+
+mission_main.s: mission_main.cpp.s
+.PHONY : mission_main.s
+
+# target to generate assembly for a file
+mission_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/mission_main.cpp.s
+.PHONY : mission_main.cpp.s
 
 quadcopter.o: quadcopter.cpp.o
 .PHONY : quadcopter.o
@@ -311,10 +372,17 @@ help:
 	@echo "... search_and_rescue_uninstall"
 	@echo "... uninstall"
 	@echo "... controller_lib"
+	@echo "... navigation"
 	@echo "... quadcopter"
 	@echo "... controller.o"
 	@echo "... controller.i"
 	@echo "... controller.s"
+	@echo "... mission.o"
+	@echo "... mission.i"
+	@echo "... mission.s"
+	@echo "... mission_main.o"
+	@echo "... mission_main.i"
+	@echo "... mission_main.s"
 	@echo "... quadcopter.o"
 	@echo "... quadcopter.i"
 	@echo "... quadcopter.s"

@@ -1045,4 +1045,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/search_and_rescue_uninstall.dir/DependInfo.cmake"
   "CMakeFiles/controller_lib.dir/DependInfo.cmake"
   "CMakeFiles/quadcopter.dir/DependInfo.cmake"
+  "CMakeFiles/navigation.dir/DependInfo.cmake"
   )

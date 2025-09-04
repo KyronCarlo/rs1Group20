@@ -29,7 +29,7 @@ void Quadcopter::run(void){
 
     // while it has not reached the goal yet
             while (!goalReached && isDriving_ && goalSet_){
-                
+                std::cout<<"In control"<<std::endl;
                 //updates the values needed to reach goal and check it is reachable
                 goalReachable = checkOriginToDestination(odom_, goal_.location, goal_.distance, goal_.time, estimatedGoalPose_);
                 
@@ -92,6 +92,7 @@ void Quadcopter::run(void){
                       else{
                           // do MOVING UP
                           if (odom_.position.z < 0.1){
+                            std::cout<<"Trying to takeoff"<<std::endl;
                             std_msgs::msg::Empty message = std_msgs::msg::Empty();
                             takeOff_Pub->publish(message);
                           }
@@ -211,7 +212,7 @@ void Quadcopter::run(void){
                 break;
             }
           }
-          if (!goalSet_){ // makes the drone stop when the service is called with data 'false'
+          while (!goalSet_){ // makes the drone stop when the service is called with data 'false'
             command(0.0, 0.0, 0.0, 0.0);
           }
 

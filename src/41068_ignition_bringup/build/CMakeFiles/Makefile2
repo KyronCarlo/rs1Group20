@@ -65,6 +65,7 @@ CMAKE_BINARY_DIR = /home/student/41068_ws/src/rs1Group20/src/41068_ignition_brin
 # The main recursive "all" target.
 all: CMakeFiles/controller_lib.dir/all
 all: CMakeFiles/quadcopter.dir/all
+all: CMakeFiles/navigation.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,6 +77,7 @@ clean: CMakeFiles/uninstall.dir/clean
 clean: CMakeFiles/search_and_rescue_uninstall.dir/clean
 clean: CMakeFiles/controller_lib.dir/clean
 clean: CMakeFiles/quadcopter.dir/clean
+clean: CMakeFiles/navigation.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -163,7 +165,7 @@ CMakeFiles/controller_lib.dir/clean:
 CMakeFiles/quadcopter.dir/all: CMakeFiles/controller_lib.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=4,5 "Built target quadcopter"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=7,8 "Built target quadcopter"
 .PHONY : CMakeFiles/quadcopter.dir/all
 
 # Build rule for subdir invocation for target.
@@ -181,6 +183,32 @@ quadcopter: CMakeFiles/quadcopter.dir/rule
 CMakeFiles/quadcopter.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/quadcopter.dir/build.make CMakeFiles/quadcopter.dir/clean
 .PHONY : CMakeFiles/quadcopter.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/navigation.dir
+
+# All Build rule for target.
+CMakeFiles/navigation.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles --progress-num=4,5,6 "Built target navigation"
+.PHONY : CMakeFiles/navigation.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/navigation.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/navigation.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/41068_ws/src/rs1Group20/src/41068_ignition_bringup/build/CMakeFiles 0
+.PHONY : CMakeFiles/navigation.dir/rule
+
+# Convenience name for target.
+navigation: CMakeFiles/navigation.dir/rule
+.PHONY : navigation
+
+# clean rule for target.
+CMakeFiles/navigation.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/navigation.dir/build.make CMakeFiles/navigation.dir/clean
+.PHONY : CMakeFiles/navigation.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
