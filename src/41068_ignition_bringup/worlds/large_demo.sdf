@@ -141,7 +141,6 @@
 
         <!-- All Pine Trees -->
 
-    <!-- Pines replacing former Oaks -->
     <include>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Pine%20tree</uri>
       <name>pine1</name>
@@ -330,6 +329,12 @@
       <name>rock8</name>
       <pose>8 -8 0 0 0 0</pose>
     </include>
+ 
+<include>
+  <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/person_standing</uri>
+  <name>person1</name>
+  <pose>-11 -11 0 0 0 0</pose>
+</include>
 
   </world>
 </sdf>

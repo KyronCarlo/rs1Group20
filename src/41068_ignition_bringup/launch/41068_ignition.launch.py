@@ -85,14 +85,14 @@ def generate_launch_description():
     ld.add_action(gazebo)
 
     # Spawn robot in Gazebo
-    # robot_spawner = Node(
-    #     package='ros_ign_gazebo',
-    #     executable='create',
-    #     output='screen',
-    #     parameters=[{'use_sim_time': use_sim_time}],
-    #     arguments=['-topic', '/robot_description', '-z', '0.4']
-    # )
-    # ld.add_action(robot_spawner)
+    robot_spawner = Node(
+        package='ros_ign_gazebo',
+        executable='create',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+        arguments=['-topic', '/robot_description', '-z', '0.4']
+    )
+    ld.add_action(robot_spawner)
 
     # Bridge topics between gazebo and ROS2
     gazebo_bridge = Node(
@@ -127,21 +127,5 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('nav2'))
     )
     ld.add_action(nav2)
-
-       # Spawn SJTU drone in Gazebo
-    drone_spawner = Node(
-        package='ros_ign_gazebo',
-        executable='create',
-        output='screen',
-        arguments=[
-            '-name', 'drone',
-            '-file', PathJoinSubstitution([pkg_path,
-                                           'models',
-                                           'sjtu_drone',
-                                           'sjtu_drone.sdf']),
-            '-x', '0', '-y', '0', '-z', '1'
-        ]
-    )
-    ld.add_action(drone_spawner)
 
     return ld
