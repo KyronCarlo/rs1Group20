@@ -1,0 +1,16 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/student/41068_ws/build/drone_ui",
+        "/home/student/41068_ws/install/drone_ui/lib/python3.10/site-packages",
+        "/home/student/41068_ws/install/custom_explorer/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/student/41068_ws/build/drone_ui",
+        "/home/student/41068_ws/install/drone_ui/lib/python3.10/site-packages",
+        "/home/student/41068_ws/install/custom_explorer/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

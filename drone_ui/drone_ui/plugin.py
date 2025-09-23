@@ -37,7 +37,10 @@ class DroneControlPlugin(Plugin):
 
         # ---------------- ROS I/O ----------------
         # E-stop state (single source of truth topic)
-        self.estop_pub = self.node.create_publisher(Bool, '/emergency_stop', 10)
+        self.auto_pub = self.node.create_publisher(Bool, '/explore/resume', 10)
+
+        self._hold_explore_paused = True               # we want explore paused initially
+        self._resume_timer = self.node.create_timer(0.2, self._keep_explore_paused)
 
         # Manual user goal publisher (geometry_msgs/Point)
         self.user_goal_pub = self.node.create_publisher(Point, '/userGoal', 10)
@@ -45,9 +48,6 @@ class DroneControlPlugin(Plugin):
         # Mission service for start/stop (Nav2 wrapper on your side)
         self.mission_client = self.node.create_client(SetBool, '/drone/mission')
         self._pending_future = None
-
-        # Local e-stop latch (mirrors /emergency_stop we publish)
-        self._estop_active = False
 
         # ---------------- UI ----------------
         self._widget = QWidget()
@@ -109,18 +109,13 @@ class DroneControlPlugin(Plugin):
 
     def _on_estop(self):
         # Latch and broadcast E-STOP
-        self._estop_active = True
-        self.estop_pub.publish(Bool(data=True))
         self._call_mission(False)  # stop mission / cancel nav2
-        self.status_lbl.setText('E-STOP engaged. Mission stopped and /emergency_stop=True')
-        self.node.get_logger().warn('E-STOP engaged: published /emergency_stop=True and stopped mission')
+        self._publish_explore(False) # stop autonomous nav
+        self.status_lbl.setText('E-STOP engaged. Stopped explore  and mission')
+        self.node.get_logger().warn('E-STOP engaged')
 
     def _on_takeoff(self):
         # Clear E-STOP (so both stacks can run again)
-        if self._estop_active:
-            self._estop_active = False
-            self.estop_pub.publish(Bool(data=False))
-            self.node.get_logger().info('Cleared E-STOP: published /emergency_stop=False')
 
         manual = (self.mode_combo.currentText() == 'Manual search')
         if manual:
@@ -129,11 +124,27 @@ class DroneControlPlugin(Plugin):
                 self.status_lbl.setText('Enter valid X and Y for Manual search.')
                 self.node.get_logger().warn('Manual search requires valid X and Y.')
                 return
+            # Need to fix this so it doesn't skip starting mission
+
+            self._publish_explore(False)  # Stop auto nav
             # Publish user goal immediately on /userGoal (geometry_msgs/Point)
             self._publish_user_goal(x, y)
 
-        # Start mission (SetBool true) regardless of mode
-        self._call_mission(True)
+            # Start mission (SetBool true) 
+            self._call_mission(True)
+        
+        else:
+            # Auto: stop manual mission first, then resume explore
+            # So it doesnt start the auon nav until the manual one is cancelled
+            def start_auto(resp):
+                if resp and resp.success:
+                    if hasattr(self, '_hold_explore_paused'):
+                        self._hold_explore_paused = False  # stop any pause-guard
+                    self._publish_explore(True)
+                    self.status_lbl.setText('Auto exploration resumed')
+                else:
+                    self.node.get_logger().warn('Stop mission failed; not resuming explore')
+            self._call_mission(False, on_done=start_auto)
 
     def _on_mode_changed(self, _idx: int):
         manual = (self.mode_combo.currentText() == 'Manual search')
@@ -164,7 +175,7 @@ class DroneControlPlugin(Plugin):
         else:
             self.btn_takeoff.setEnabled(self.mission_client.service_is_ready())
 
-    def _call_mission(self, start: bool):
+    def _call_mission(self, start: bool, on_done=None):
         if not self.mission_client.service_is_ready():
             self.node.get_logger().warn('/drone/mission not available yet')
             self._update_service_status()
@@ -177,6 +188,32 @@ class DroneControlPlugin(Plugin):
         self._disable_ui(True)
         self.status_lbl.setText(f'Calling /drone/mission: {"start" if start else "stop"}...')
         self._pending_future = self.mission_client.call_async(req)
+
+        def _done_callback(fut):
+            try:
+                resp = fut.result()
+                if resp.success:
+                    self.node.get_logger().info(f'/drone/mission success: {resp.message}')
+                else:
+                    self.node.get_logger().warn(f'/drone/mission failed: {resp.message}')
+            except Exception as e:
+                self.node.get_logger().error(f'/drone/mission exception: {e}')
+                resp = None
+            finally:
+                self._pending_future = None
+                self._disable_ui(False)
+                self._validate_manual_inputs()
+                if on_done:
+                    try:
+                        on_done(resp)
+                    except Exception as e:
+                        self.node.get_logger().error(f'on_done callback error: {e}')
+
+        self._pending_future.add_done_callback(_done_callback)
+
+    def _publish_explore(self, resume: bool):
+        self.auto_pub.publish(Bool(data=bool(resume)))
+        self.node.get_logger().info(f'Published /explore/resume: {resume}')
 
     def _update_service_status(self, first: bool = False):
         ready = self.mission_client.service_is_ready()
@@ -197,6 +234,16 @@ class DroneControlPlugin(Plugin):
         self.edit_x.setEnabled(not disable)
         self.edit_y.setEnabled(not disable)
 
+    def _keep_explore_paused(self):
+        # Keep asserting False until user starts, or until a subscriber is present
+        if self._hold_explore_paused:
+            self.auto_pub.publish(Bool(data=False))
+            
+            # Optional: stop once someone is listening
+            if self.auto_pub.get_subscription_count() > 0:
+                self.node.get_logger().info('explore_lite subscribed; keeping /explore/resume=False')
+                self._hold_explore_paused = False
+
     # ---------- rclpy integration ----------
 
     def _spin_once(self):
@@ -212,6 +259,17 @@ class DroneControlPlugin(Plugin):
                 else:
                     self.status_lbl.setText(f'/drone/mission failed: {resp.message}')
                     self.node.get_logger().warn(f'/drone/mission failed: {resp.message}')
+                    # added
+                if getattr(self, "_pending_on_done", None):
+                    cb = self._pending_on_done
+                    self._pending_on_done = None
+                    try:
+                        cb()
+                    except Exception as e:
+                        self.node.get_logger().error(f'on_done callback error: {e}')
+                        #added
+            except Exception as e:
+                self.node.get_logger().error(f'on_done callback error: {e}')
             except Exception as e:
                 self.status_lbl.setText(f'/drone/mission error: {e}')
                 self.node.get_logger().error(f'/drone/mission exception: {e}')
