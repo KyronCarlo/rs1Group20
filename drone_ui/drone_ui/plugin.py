@@ -124,12 +124,10 @@ class DroneControlPlugin(Plugin):
                 self.status_lbl.setText('Enter valid X and Y for Manual search.')
                 self.node.get_logger().warn('Manual search requires valid X and Y.')
                 return
-            # Need to fix this so it doesn't skip starting mission
-
-            self._publish_explore(False)  # Stop auto nav
+            # Stop automatic navigation
+            self._publish_explore(False)
             # Publish user goal immediately on /userGoal (geometry_msgs/Point)
             self._publish_user_goal(x, y)
-
             # Start mission (SetBool true) 
             self._call_mission(True)
         
@@ -138,8 +136,8 @@ class DroneControlPlugin(Plugin):
             # So it doesnt start the auon nav until the manual one is cancelled
             def start_auto(resp):
                 if resp and resp.success:
-                    if hasattr(self, '_hold_explore_paused'):
-                        self._hold_explore_paused = False  # stop any pause-guard
+                    #if hasattr(self, '_hold_explore_paused'):
+                     #   self._hold_explore_paused = False  # stop any pause-guard
                     self._publish_explore(True)
                     self.status_lbl.setText('Auto exploration resumed')
                 else:
@@ -217,14 +215,15 @@ class DroneControlPlugin(Plugin):
 
     def _update_service_status(self, first: bool = False):
         ready = self.mission_client.service_is_ready()
-        if ready:
-            self.status_lbl.setText('Service ready: /drone/mission (SetBool)')
+        subCount = self.auto_pub.get_subscription_count()
+        if ready and (subCount > 0):
+            self.status_lbl.setText('Nodes running')
             self._disable_ui(False)
             self._validate_manual_inputs()
             if first:
-                self.node.get_logger().info('Connected to /drone/mission')
+                self.node.get_logger().info('Connected to /drone/mission and /explore/resume')
         else:
-            self.status_lbl.setText('Waiting for /drone/mission...')
+            self.status_lbl.setText('Waiting for /drone/mission and /explore/resume...')
             self._disable_ui(True)
 
     def _disable_ui(self, disable: bool):
