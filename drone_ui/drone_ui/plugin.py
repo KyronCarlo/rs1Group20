@@ -216,14 +216,20 @@ class DroneControlPlugin(Plugin):
     def _update_service_status(self, first: bool = False):
         ready = self.mission_client.service_is_ready()
         subCount = self.auto_pub.get_subscription_count()
-        if ready and (subCount > 0):
+        if ready and (subCount == 0):
+            self.status_lbl.setText('Waiting for explore_lite node')
+            self._disable_ui(True)
+        elif not ready and (subCount > 0):
+            self.status_lbl.setText('Waiting for Navigation node')
+            self._disable_ui(True)
+        elif ready and (subCount > 0):
             self.status_lbl.setText('Nodes running')
             self._disable_ui(False)
             self._validate_manual_inputs()
             if first:
                 self.node.get_logger().info('Connected to /drone/mission and /explore/resume')
         else:
-            self.status_lbl.setText('Waiting for /drone/mission and /explore/resume...')
+            self.status_lbl.setText('Waiting for Navigation and explore_lite nodes...')
             self._disable_ui(True)
 
     def _disable_ui(self, disable: bool):
