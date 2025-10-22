@@ -11,6 +11,7 @@ from python_qt_binding.QtGui import QDoubleValidator
 from python_qt_binding.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QComboBox, QLineEdit, QFrame
 )
+from std_srvs.srv import Trigger
 
 
 class DroneControlPlugin(Plugin):
@@ -49,17 +50,23 @@ class DroneControlPlugin(Plugin):
         self.mission_client = self.node.create_client(SetBool, '/drone/mission')
         self._pending_future = None
 
+        self.path_client = self.node.create_client(Trigger, '/trigger_path_plan')
+
         # ---------------- UI ----------------
         self._widget = QWidget()
         self._widget.setWindowTitle('Drone Controls')
         layout = QVBoxLayout(self._widget)
 
-        self.btn_estop = QPushButton('🚨 E-STOP')
-        self.btn_takeoff = QPushButton('⬆️ Takeoff')
+        self.btn_estop = QPushButton('E-STOP')
+        self.btn_takeoff = QPushButton('Takeoff')
+        self.btn_markpath = QPushButton('Mark Path')
+
         self.btn_estop.setStyleSheet('font-weight: bold; padding:12px; background:#ff6666;')
         self.btn_takeoff.setStyleSheet('padding:10px;')
+        self.btn_markpath.setStyleSheet('font-weight: bold; padding:12px; background:#66b3ff;')
         layout.addWidget(self.btn_estop)
         layout.addWidget(self.btn_takeoff)
+        layout.addWidget(self.btn_markpath)
 
         mode_row = QHBoxLayout()
         mode_row.addWidget(QLabel('Search mode:'))
@@ -87,6 +94,7 @@ class DroneControlPlugin(Plugin):
         # Signals
         self.btn_estop.clicked.connect(self._on_estop)
         self.btn_takeoff.clicked.connect(self._on_takeoff)
+        self.btn_markpath.clicked.connect(self._on_mark_path)
         self.edit_x.textChanged.connect(self._validate_manual_inputs)
         self.edit_y.textChanged.connect(self._validate_manual_inputs)
 
@@ -149,6 +157,35 @@ class DroneControlPlugin(Plugin):
         self.coords_frame.setVisible(manual)
         self._validate_manual_inputs()
 
+    def _on_mark_path(self):
+        if not self.path_client.service_is_ready():
+            self.node.get_logger().warn('/trigger_path_plan service not available')
+            self.status_lbl.setText('Waiting for /trigger_path_plan service...')
+            return
+
+        req = Trigger.Request()
+        self.status_lbl.setText('Calling /trigger_path_plan...')
+        self._disable_ui(True)
+
+        future = self.path_client.call_async(req)
+
+        def _done_callback(fut):
+            try:
+                resp = fut.result()
+                if resp.success:
+                    self.node.get_logger().info(f'/trigger_path_plan success: {resp.message}')
+                    self.status_lbl.setText('Path marked successfully.')
+                else:
+                    self.node.get_logger().warn(f'/trigger_path_plan failed: {resp.message}')
+                    self.status_lbl.setText('Path marking failed.')
+            except Exception as e:
+                self.node.get_logger().error(f'/trigger_path_plan exception: {e}')
+                self.status_lbl.setText(f'/trigger_path_plan error: {e}')
+            finally:
+                self._disable_ui(False)
+                self._validate_manual_inputs()
+
+        future.add_done_callback(_done_callback)
     # ---------- Helpers ----------
 
     def _publish_user_goal(self, x: float, y: float):
