@@ -163,6 +163,8 @@ class DroneControlPlugin(Plugin):
             self.status_lbl.setText('Waiting for /trigger_path_plan service...')
             return
 
+        self._on_estop()
+
         req = Trigger.Request()
         self.status_lbl.setText('Calling /trigger_path_plan...')
         self._disable_ui(True)
