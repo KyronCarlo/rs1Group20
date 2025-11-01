@@ -37,6 +37,10 @@ class DroneControlPlugin(Plugin):
         self.node: Node = rclpy.create_node('drone_ui')
 
         # ---------------- ROS I/O ----------------
+<<<<<<< HEAD
+=======
+
+>>>>>>> ef78e98 (Initial commit for drone_ui)
         # E-stop state (single source of truth topic)
         self.auto_pub = self.node.create_publisher(Bool, '/explore/resume', 10)
 
@@ -52,6 +56,21 @@ class DroneControlPlugin(Plugin):
 
         self.path_client = self.node.create_client(Trigger, '/trigger_path_plan')
 
+<<<<<<< HEAD
+=======
+        # Person detection subscriber
+        self.person_detected = False
+        self.person_sub = self.node.create_subscription(
+            Bool,
+            '/personDetected',
+            self._on_person_detected,
+            10
+        )
+
+        self._hold_explore_paused = True
+        self._resume_timer = self.node.create_timer(0.2, self._keep_explore_paused)
+
+>>>>>>> ef78e98 (Initial commit for drone_ui)
         # ---------------- UI ----------------
         self._widget = QWidget()
         self._widget.setWindowTitle('Drone Controls')
@@ -91,6 +110,20 @@ class DroneControlPlugin(Plugin):
         self.status_lbl = QLabel('Waiting for /drone/mission...')
         layout.addWidget(self.status_lbl)
 
+<<<<<<< HEAD
+=======
+        # --- Person Detected Box ---
+        detect_layout = QHBoxLayout()
+        detect_label = QLabel("Person Detected:")
+        detect_label.setStyleSheet('font-weight: bold;')
+        self.detect_box = QFrame()
+        self.detect_box.setFixedSize(60, 30)
+        self.detect_box.setStyleSheet("background-color: white; border: 2px solid black;")
+        detect_layout.addWidget(detect_label)
+        detect_layout.addWidget(self.detect_box)
+        layout.addLayout(detect_layout)
+
+>>>>>>> ef78e98 (Initial commit for drone_ui)
         # Signals
         self.btn_estop.clicked.connect(self._on_estop)
         self.btn_takeoff.clicked.connect(self._on_takeoff)
@@ -113,6 +146,21 @@ class DroneControlPlugin(Plugin):
         # Initial service status
         self._update_service_status(first=True)
 
+<<<<<<< HEAD
+=======
+     	# PERSON DETECTED BOX
+	def _on_person_detected(self, msg: Bool):
+		"""Update UI when person detection message arrives."""
+		self.person_detected = msg.data
+		if msg.data:
+		    # Turn box green
+		    self.detect_box.setStyleSheet("background-color: #00ff66; border: 2px solid black;")
+		else:
+		    # Reset to white
+		    self.detect_box.setStyleSheet("background-color: white; border: 2px solid black;")
+
+
+>>>>>>> ef78e98 (Initial commit for drone_ui)
     # ---------- UI callbacks ----------
 
     def _on_estop(self):
@@ -163,6 +211,11 @@ class DroneControlPlugin(Plugin):
             self.status_lbl.setText('Waiting for /trigger_path_plan service...')
             return
 
+<<<<<<< HEAD
+=======
+        self._on_estop()
+
+>>>>>>> ef78e98 (Initial commit for drone_ui)
         req = Trigger.Request()
         self.status_lbl.setText('Calling /trigger_path_plan...')
         self._disable_ui(True)
