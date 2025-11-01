@@ -1,0 +1,12 @@
+<library path=".">
+  <class name="Drone Controls"
+         type="drone_ui.plugin.DroneControlPlugin"
+         base_class_type="rqt_gui_py::Plugin">
+    <description>Buttons for E-STOP / Takeoff / Land</description>
+    <qtgui>
+      <label>Drone Controls</label>
+      <icon type="theme">applications-system</icon>
+      <statustip>Control panel for drone commands</statustip>
+    </qtgui>
+  </class>
+</library>
